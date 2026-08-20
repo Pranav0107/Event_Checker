@@ -32,7 +32,10 @@ export default function Scan() {
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
-      scannerRef.current?.clear().catch(console.error);
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch(console.error);
+        scannerRef.current = null;
+      }
     };
   }, []);
 

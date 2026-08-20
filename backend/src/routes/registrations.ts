@@ -42,6 +42,21 @@ router.post('/', authenticate, registrationLimiter, async (req: AuthRequest, res
 
     const capacity = eventResult.rows[0].capacity;
 
+    // Check if user has a previous record (e.g. cancelled)
+    const existingResult = await client.query(
+      'SELECT id, status FROM registrations WHERE event_id = $1 AND attendee_id = $2 FOR UPDATE',
+      [event_id, attendee_id]
+    );
+
+    if (existingResult.rows.length > 0) {
+      const existingStatus = existingResult.rows[0].status;
+      if (existingStatus === 'registered' || existingStatus === 'waitlisted') {
+        await client.query('ROLLBACK');
+        res.status(409).json({ error: 'You are already registered for this event' });
+        return;
+      }
+    }
+
     // Check current registered count
     const countResult = await client.query(
       "SELECT COUNT(*) FROM registrations WHERE event_id = $1 AND status = 'registered'",
@@ -52,14 +67,26 @@ router.post('/', authenticate, registrationLimiter, async (req: AuthRequest, res
     const status = registeredCount >= capacity ? 'waitlisted' : 'registered';
     const qrToken = uuidv4();
 
-    // Insert registration
-    const insertResult = await client.query(
-      'INSERT INTO registrations (event_id, attendee_id, status, qr_token) VALUES ($1, $2, $3, $4) RETURNING *',
-      [event_id, attendee_id, status, qrToken]
-    );
+    let registrationRecord;
+
+    if (existingResult.rows.length > 0) {
+      // Update existing cancelled registration
+      const updateResult = await client.query(
+        'UPDATE registrations SET status = $1, qr_token = $2 WHERE id = $3 RETURNING *',
+        [status, qrToken, existingResult.rows[0].id]
+      );
+      registrationRecord = updateResult.rows[0];
+    } else {
+      // Insert new registration
+      const insertResult = await client.query(
+        'INSERT INTO registrations (event_id, attendee_id, status, qr_token) VALUES ($1, $2, $3, $4) RETURNING *',
+        [event_id, attendee_id, status, qrToken]
+      );
+      registrationRecord = insertResult.rows[0];
+    }
 
     await client.query('COMMIT');
-    res.status(201).json(insertResult.rows[0]);
+    res.status(201).json(registrationRecord);
   } catch (error: any) {
     await client.query('ROLLBACK');
     if (error.code === '23505') {

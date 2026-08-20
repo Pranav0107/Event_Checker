@@ -12,6 +12,17 @@ export default function Dashboard() {
   const [search, setSearch] = useState('');
   const [socket, setSocket] = useState<Socket | null>(null);
   const [loadingRegs, setLoadingRegs] = useState(false);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [newEvent, setNewEvent] = useState({
+    name: '',
+    date: '',
+    start_time: '',
+    end_time: '',
+    venue: '',
+    speaker_name: '',
+    description: '',
+    capacity: ''
+  });
 
   useEffect(() => {
     fetchEvents();
@@ -56,6 +67,23 @@ export default function Dashboard() {
       console.error(err);
     } finally {
       setLoadingRegs(false);
+    }
+  };
+
+  const handleCreateEvent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.post('/events', { 
+        ...newEvent, 
+        capacity: parseInt(newEvent.capacity),
+        date: new Date(newEvent.date).toISOString()
+      });
+      setShowEventModal(false);
+      setNewEvent({ name: '', date: '', start_time: '', end_time: '', venue: '', speaker_name: '', description: '', capacity: '' });
+      fetchEvents();
+      playBeep('success');
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to create event');
     }
   };
 
@@ -155,14 +183,7 @@ export default function Dashboard() {
           {events.map(e => <option key={e.id} value={e.id}>{e.name} (Capacity Limit: {e.capacity})</option>)}
         </select>
         <button 
-          onClick={() => {
-            const name = prompt("Enter Event Name:");
-            const capacity = prompt("Enter Capacity:");
-            if (name && capacity) {
-              api.post('/events', { name, date: new Date().toISOString(), capacity: parseInt(capacity) })
-                .then(fetchEvents);
-            }
-          }} 
+          onClick={() => setShowEventModal(true)} 
           className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-4 rounded-2xl text-sm transition-all shadow-md active:scale-95"
         >
           ➕ Create New Event
@@ -316,6 +337,52 @@ export default function Dashboard() {
           {/* Side panel */}
           <div className="lg:col-span-1 h-full">
             <AiInsights eventId={selectedEventId} />
+          </div>
+        </div>
+      )}
+
+      {/* Create Event Modal */}
+      {showEventModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-slide-up">
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+              <h2 className="text-2xl font-bold">Create New Event</h2>
+              <p className="text-indigo-100 text-sm">Fill in the details for your upcoming event.</p>
+            </div>
+            <form onSubmit={handleCreateEvent} className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Event Name</label>
+                <input required type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none" value={newEvent.name} onChange={e => setNewEvent({...newEvent, name: e.target.value})} placeholder="e.g. Annual Tech Conference" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Date</label>
+                <input required type="date" className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none" value={newEvent.date} onChange={e => setNewEvent({...newEvent, date: e.target.value})} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Capacity</label>
+                <input required type="number" min="1" className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none" value={newEvent.capacity} onChange={e => setNewEvent({...newEvent, capacity: e.target.value})} placeholder="100" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Start Time</label>
+                <input type="time" className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none" value={newEvent.start_time} onChange={e => setNewEvent({...newEvent, start_time: e.target.value})} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">End Time</label>
+                <input type="time" className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none" value={newEvent.end_time} onChange={e => setNewEvent({...newEvent, end_time: e.target.value})} />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Venue</label>
+                <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none" value={newEvent.venue} onChange={e => setNewEvent({...newEvent, venue: e.target.value})} placeholder="e.g. Main Auditorium" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Speaker Name</label>
+                <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none" value={newEvent.speaker_name} onChange={e => setNewEvent({...newEvent, speaker_name: e.target.value})} placeholder="e.g. Jane Doe" />
+              </div>
+              <div className="md:col-span-2 flex justify-end gap-3 mt-4">
+                <button type="button" onClick={() => setShowEventModal(false)} className="px-6 py-3 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors">Cancel</button>
+                <button type="submit" className="px-6 py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-lg active:scale-95">Create Event</button>
+              </div>
+            </form>
           </div>
         </div>
       )}

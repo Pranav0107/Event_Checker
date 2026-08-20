@@ -8,6 +8,7 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'attendee'|'organizer'>('attendee');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -15,9 +16,10 @@ export default function Register() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccess('');
     try {
-      await api.post('/auth/register', { name, email, password, role });
-      navigate('/login');
+      const res = await api.post('/auth/register', { name, email, password, role });
+      setSuccess(res.data.message || 'Successfully registered! Please check your email to verify your account.');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Registration failed. Please try again.');
     } finally {
@@ -42,6 +44,14 @@ export default function Register() {
           </div>
         )}
 
+        {success && (
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm p-5 mb-6 rounded-2xl text-center shadow-inner">
+            <div className="text-2xl mb-2">✉️</div>
+            <p className="font-bold">{success}</p>
+          </div>
+        )}
+
+        {!success && (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col">
             <label className="text-[11px] font-bold text-gray-500 mb-1 uppercase tracking-widest">Full Name</label>
@@ -99,6 +109,7 @@ export default function Register() {
             {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
+        )}
 
         <p className="mt-6 text-center text-sm text-gray-600 font-medium">
           Already have an account?{' '}

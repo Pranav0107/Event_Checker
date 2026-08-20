@@ -49,18 +49,29 @@ export default function EventDetails() {
 
   const fetchRegistrationStatus = async () => {
     try {
-      const res = await api.get(`/events/${id}/registrations`);
-      // Filter for active logged in user's registration
       const userStr = localStorage.getItem('user');
       if (userStr) {
         const user = JSON.parse(userStr);
-        const myReg = res.data.find((r: any) => r.email === user.email);
-        if (myReg) {
-          setRegistration(myReg);
+        if (user.role === 'organizer') {
+          // Organizers get all registrations
+          const res = await api.get(`/events/${id}/registrations`);
+          setRegistrations(res.data);
+          const myReg = res.data.find((r: any) => r.email === user.email);
+          if (myReg) setRegistration(myReg);
+        } else {
+          // Attendees get only their own registration
+          try {
+            const res = await api.get(`/events/${id}/my-registration`);
+            setRegistration(res.data);
+          } catch (err: any) {
+            if (err.response?.status !== 404) {
+              console.error('Error fetching registration', err);
+            }
+          }
         }
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -118,12 +129,35 @@ export default function EventDetails() {
             Ticket
           </div>
           <h2 className="text-2xl font-bold mb-1 tracking-tight mr-16">{event.name}</h2>
-          <p className="text-indigo-100 text-xs font-medium flex items-center gap-1.5 mt-2">
-            📅 {new Date(event.date).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
-          </p>
-          <p className="text-indigo-100 text-xs font-medium flex items-center gap-1.5 mt-1">
-            ⏰ {new Date(event.date).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
-          </p>
+          
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-indigo-200 text-[10px] font-bold uppercase tracking-wider mb-0.5">Date & Time</p>
+              <p className="text-white text-xs font-medium flex items-center gap-1.5">
+                📅 {new Date(event.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+              </p>
+              <p className="text-indigo-100 text-xs font-medium flex items-center gap-1.5 mt-0.5">
+                ⏰ {event.start_time || new Date(event.date).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                {event.end_time && ` - ${event.end_time}`}
+              </p>
+            </div>
+            
+            {(event.venue || event.speaker_name) && (
+              <div>
+                <p className="text-indigo-200 text-[10px] font-bold uppercase tracking-wider mb-0.5">Details</p>
+                {event.venue && (
+                  <p className="text-white text-xs font-medium flex items-center gap-1.5 line-clamp-1">
+                    📍 {event.venue}
+                  </p>
+                )}
+                {event.speaker_name && (
+                  <p className="text-indigo-100 text-xs font-medium flex items-center gap-1.5 mt-0.5 line-clamp-1">
+                    🎤 {event.speaker_name}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Ticket Tear Cutout design */}
@@ -203,6 +237,16 @@ export default function EventDetails() {
                   className="mt-6 text-xs text-red-500 hover:text-red-700 font-semibold uppercase tracking-wider transition-colors hover:underline"
                 >
                   Cancel Ticket
+                </button>
+              )}
+
+              {registration.status === 'cancelled' && (
+                <button 
+                  onClick={register} 
+                  disabled={loading}
+                  className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50"
+                >
+                  {loading ? 'Registering...' : 'Re-register Now'}
                 </button>
               )}
             </div>

@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   role VARCHAR(50) NOT NULL CHECK (role IN ('organizer', 'attendee')),
+  is_verified BOOLEAN DEFAULT FALSE,
+  verification_token VARCHAR(255),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -13,6 +15,11 @@ CREATE TABLE IF NOT EXISTS events (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   date TIMESTAMP WITH TIME ZONE NOT NULL,
+  start_time VARCHAR(50),
+  end_time VARCHAR(50),
+  venue VARCHAR(255),
+  speaker_name VARCHAR(255),
+  description TEXT,
   capacity INT NOT NULL CHECK (capacity > 0),
   created_by INT NOT NULL REFERENCES users(id),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

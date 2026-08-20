@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Scan from './pages/Scan';
 import EventDetails from './pages/EventDetails';
+import VerifyEmail from './pages/VerifyEmail';
 
 const PrivateRoute = ({ children, requireRole }: { children: React.ReactNode, requireRole?: string }) => {
   const { user } = useAuth();
@@ -53,6 +54,7 @@ const AppRoutes = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify/:token" element={<VerifyEmail />} />
           <Route path="/dashboard" element={
             <PrivateRoute requireRole="organizer"><Dashboard /></PrivateRoute>
           } />
