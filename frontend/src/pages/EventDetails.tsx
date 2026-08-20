@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import api from '../api/client';
@@ -55,7 +55,6 @@ export default function EventDetails() {
         if (user.role === 'organizer') {
           // Organizers get all registrations
           const res = await api.get(`/events/${id}/registrations`);
-          setRegistrations(res.data);
           const myReg = res.data.find((r: any) => r.email === user.email);
           if (myReg) setRegistration(myReg);
         } else {

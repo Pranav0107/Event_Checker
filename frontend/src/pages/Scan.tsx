@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import api from '../api/client';
 import { Link } from 'react-router-dom';
@@ -74,7 +74,7 @@ export default function Scan() {
     }
   };
 
-  const onScanFailure = (error: any) => {
+  const onScanFailure = (_error: any) => {
     // ignore
   };
 
