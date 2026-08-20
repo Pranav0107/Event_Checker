@@ -7,6 +7,8 @@ import authRoutes from './routes/auth';
 import eventsRoutes from './routes/events';
 import registrationsRoutes from './routes/registrations';
 import checkinRoutes from './routes/checkin';
+import syncRoutes from './routes/sync';
+import insightsRoutes from './routes/insights';
 
 dotenv.config();
 
@@ -34,6 +36,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/registrations', registrationsRoutes);
 app.use('/api/checkin', checkinRoutes);
+app.use('/api/sync', syncRoutes);
+app.use('/api/insights', insightsRoutes);
 
 const PORT = process.env.PORT || 3001;
 
