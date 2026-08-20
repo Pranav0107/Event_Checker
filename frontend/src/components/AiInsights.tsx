@@ -23,19 +23,22 @@ export default function AiInsights({ eventId }: { eventId: string }) {
       setRawData(res.data.raw_data);
       if (res.data.fallback) setIsFallback(true);
     } catch (err: any) {
-      setAnswer("Sorry, couldn't fetch insights.");
+      setAnswer("Sorry, I encountered an error querying the AI processor.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-white p-4 rounded shadow-sm flex flex-col h-full border border-purple-100">
-      <h3 className="text-lg font-bold text-purple-700 mb-2 flex items-center gap-2">
-        ✨ AI Insights
-      </h3>
-      <p className="text-xs text-gray-500 mb-4">
-        Ask natural language questions about your event data.
+    <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-purple-100 flex flex-col h-full transition-all duration-300">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-xl animate-pulse">✨</span>
+        <h3 className="text-lg font-bold bg-gradient-to-r from-purple-700 to-indigo-600 bg-clip-text text-transparent">
+          AI Copilot Insights
+        </h3>
+      </div>
+      <p className="text-xs text-gray-500 mb-4 font-medium leading-relaxed">
+        Ask natural language questions about registrations, attendance rates, and waitlists.
       </p>
 
       <form onSubmit={askQuestion} className="flex flex-col gap-2 mb-4">
@@ -43,23 +46,36 @@ export default function AiInsights({ eventId }: { eventId: string }) {
           type="text" 
           value={question}
           onChange={e => setQuestion(e.target.value)}
-          placeholder="e.g. How many spots are left?"
-          className="border border-purple-200 p-2 rounded text-sm focus:outline-none focus:border-purple-500"
+          placeholder="e.g. How many waitlist spots are left?"
+          className="border border-purple-100 bg-purple-50/20 p-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all placeholder:text-gray-400"
         />
         <button 
           type="submit" 
           disabled={loading || !question}
-          className="bg-purple-600 text-white p-2 rounded text-sm font-semibold hover:bg-purple-700 disabled:opacity-50"
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white p-3 rounded-xl text-sm font-semibold shadow-md active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 duration-150"
         >
-          {loading ? 'Thinking...' : 'Ask AI'}
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+              Analyzing...
+            </span>
+          ) : 'Ask AI'}
         </button>
       </form>
 
       {answer && (
-        <div className={`mt-2 p-3 rounded text-sm ${isFallback ? 'bg-orange-50 border border-orange-200' : 'bg-purple-50 border border-purple-100'}`}>
-          <p className="font-medium whitespace-pre-wrap">{answer}</p>
+        <div className={`mt-2 p-4 rounded-xl text-sm transition-all duration-300 border ${
+          isFallback 
+            ? 'bg-amber-50/50 border-amber-100 text-amber-900' 
+            : 'bg-purple-50/50 border-purple-100 text-purple-900'
+        }`}>
+          <p className="font-semibold mb-1 text-[11px] uppercase tracking-wider text-gray-400">Response</p>
+          <p className="font-medium leading-relaxed whitespace-pre-wrap">{answer}</p>
           {isFallback && rawData && (
-             <pre className="mt-2 text-xs text-gray-600 overflow-x-auto">{rawData}</pre>
+             <div className="mt-3">
+               <p className="font-semibold text-[10px] uppercase tracking-wider text-amber-500 mb-1">Database Reference Table</p>
+               <pre className="text-[11px] bg-white/80 p-2.5 rounded-lg border border-amber-100 text-gray-600 overflow-x-auto font-mono">{rawData}</pre>
+             </div>
           )}
         </div>
       )}
