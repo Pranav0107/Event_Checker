@@ -168,7 +168,7 @@ export default function EventDetails() {
 
               {qrToken && registration.status !== 'cancelled' && (
                 <div className="flex flex-col items-center w-full mt-2">
-                  <div className="relative p-5 bg-white border border-gray-100 rounded-2xl shadow-inner animate-pulse-ring inline-block">
+                  <div className="relative p-5 bg-white border border-gray-100 rounded-2xl shadow-inner animate-glow inline-block">
                     <QRCodeSVG value={qrToken} size={200} />
                   </div>
 

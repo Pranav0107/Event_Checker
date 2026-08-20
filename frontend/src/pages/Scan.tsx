@@ -113,6 +113,7 @@ export default function Scan() {
           <div className="relative rounded-2xl overflow-hidden border-2 border-white/20 bg-gray-950">
             {/* Holographic scanner effect overlay */}
             <div className="absolute inset-0 border-4 border-pink-500/30 rounded-2xl pointer-events-none z-10 animate-pulse"></div>
+            <div className="scanner-laser"></div>
             <div id="reader" className="w-full relative z-0"></div>
           </div>
 

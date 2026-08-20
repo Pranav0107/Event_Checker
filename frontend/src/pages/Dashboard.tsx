@@ -211,8 +211,12 @@ export default function Dashboard() {
                         </td>
                       </tr>
                     ) : (
-                      filteredRegistrations.map(reg => (
-                        <tr key={reg.id} className="hover:bg-white/20 transition-colors text-sm text-gray-700 font-medium">
+                      filteredRegistrations.map((reg, idx) => (
+                        <tr 
+                          key={reg.id} 
+                          className="hover:bg-white/20 transition-colors text-sm text-gray-700 font-medium animate-slide-up"
+                          style={{ animationDelay: `${idx * 50}ms` }}
+                        >
                           <td className="p-4 font-bold text-gray-900">{reg.name}</td>
                           <td className="p-4 text-gray-600">{reg.email}</td>
                           <td className="p-4">
