@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import eventsRoutes from './routes/events';
 import registrationsRoutes from './routes/registrations';
+import checkinRoutes from './routes/checkin';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/registrations', registrationsRoutes);
+app.use('/api/checkin', checkinRoutes);
 
 const PORT = process.env.PORT || 3001;
 
