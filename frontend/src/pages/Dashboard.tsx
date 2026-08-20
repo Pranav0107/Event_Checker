@@ -13,7 +13,9 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchEvents();
-    const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:3001');
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+    const socketUrl = apiUrl.replace('/api', '');
+    const newSocket = io(socketUrl);
     setSocket(newSocket);
 
     newSocket.on('check_in_update', (data) => {
