@@ -68,7 +68,7 @@ export default function Scan() {
   };
 
   const onScanFailure = (error: any) => {
-    // ignore scanner scan fails (expected when not looking at a QR)
+    // ignore
   };
 
   const syncOfflineQueue = async () => {
@@ -88,39 +88,39 @@ export default function Scan() {
   };
 
   return (
-    <div className="max-w-md mx-auto flex flex-col gap-6 mt-6">
-      <div className="flex justify-between items-center bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-gray-100">
-        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+    <div className="max-w-md w-full mx-auto flex flex-col gap-6 mt-6 animate-float">
+      <div className="flex justify-between items-center glass-card p-5 rounded-3xl shadow-2xl border border-white/30">
+        <h2 className="text-xl font-black text-gray-800 flex items-center gap-2">
           📷 Scan QR Code
         </h2>
-        <Link to="/dashboard" className="text-blue-600 font-semibold text-sm hover:underline transition-all">
+        <Link to="/dashboard" className="text-pink-600 font-extrabold text-sm hover:underline transition-all">
           Exit Dashboard
         </Link>
       </div>
 
       {/* Online indicator */}
-      <div className={`p-3.5 rounded-2xl text-center font-bold text-xs uppercase tracking-widest border transition-all duration-300 ${
+      <div className={`p-4 rounded-2xl text-center font-bold text-xs uppercase tracking-widest border transition-all duration-300 backdrop-blur-sm ${
         isOnline 
-          ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-          : 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse'
+          ? 'bg-emerald-500/10 text-emerald-800 border-emerald-500/20' 
+          : 'bg-rose-500/10 text-rose-800 border-rose-500/20 animate-pulse'
       }`}>
         {isOnline ? '🟢 Connected / Online Mode' : '⚠️ Offline Mode (Caching Active)'}
       </div>
 
       {/* Scanner Wrapper */}
-      <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden relative">
+      <div className="glass-card rounded-3xl shadow-2xl border border-white/30 overflow-hidden relative">
         <div className="p-6">
-          <div className="relative rounded-2xl overflow-hidden border-2 border-gray-100 bg-gray-950">
+          <div className="relative rounded-2xl overflow-hidden border-2 border-white/20 bg-gray-950">
             {/* Holographic scanner effect overlay */}
-            <div className="absolute inset-0 border-4 border-indigo-500/20 rounded-2xl pointer-events-none z-10"></div>
+            <div className="absolute inset-0 border-4 border-pink-500/30 rounded-2xl pointer-events-none z-10 animate-pulse"></div>
             <div id="reader" className="w-full relative z-0"></div>
           </div>
 
           {/* Status Message */}
-          <div className={`mt-6 p-4 rounded-xl text-center font-semibold text-sm transition-all duration-300 border ${
-            status.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 
-            status.type === 'error' ? 'bg-rose-50 border-rose-200 text-rose-800 animate-shake' : 
-            'bg-blue-50 border-blue-200 text-blue-800'
+          <div className={`mt-6 p-4.5 rounded-2xl text-center font-bold text-sm transition-all duration-300 border ${
+            status.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-800' : 
+            status.type === 'error' ? 'bg-rose-500/10 border-rose-500/20 text-rose-800 animate-bounce' : 
+            'bg-indigo-500/10 border-indigo-500/20 text-indigo-800'
           }`}>
             {status.msg}
           </div>
@@ -129,18 +129,18 @@ export default function Scan() {
 
       {/* Offline Queue panel */}
       {offlineQueue.length > 0 && (
-        <div className="bg-amber-50/80 backdrop-blur-sm p-5 rounded-3xl border border-amber-200 shadow-lg animate-fade-in">
-          <h3 className="font-bold text-amber-800 mb-1 flex items-center gap-1.5 text-sm uppercase tracking-wider">
+        <div className="bg-amber-500/10 backdrop-blur-sm p-6 rounded-3xl border border-amber-500/20 shadow-xl">
+          <h3 className="font-extrabold text-amber-800 mb-1 flex items-center gap-1.5 text-xs uppercase tracking-widest">
             💾 Queued Local Scans ({offlineQueue.length})
           </h3>
-          <p className="text-xs text-amber-700 leading-relaxed">
+          <p className="text-xs text-amber-700 leading-relaxed font-semibold">
             Scanning offline. Scans are saved securely on this device and will sync automatically when you reconnect.
           </p>
           {isOnline && (
             <button 
               onClick={syncOfflineQueue} 
               disabled={syncing} 
-              className="mt-4 w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2.5 px-4 rounded-xl text-xs transition-all active:scale-[0.98] shadow-md disabled:opacity-50"
+              className="mt-4 w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:opacity-95 text-white font-bold py-3 px-5 rounded-2xl text-xs transition-all active:scale-[0.98] shadow-md disabled:opacity-50"
             >
               {syncing ? 'Syncing data...' : 'Force Sync Data'}
             </button>

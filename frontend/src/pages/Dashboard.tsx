@@ -107,21 +107,21 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col gap-6 mt-6 transition-all duration-300">
       {/* Top Header Panel */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-lg border border-gray-100">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 glass-card p-6 rounded-3xl shadow-2xl border border-white/30">
         <div>
-          <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Organizer Control Center</h2>
-          <p className="text-sm text-gray-500 font-medium">Real-time attendance metrics & guest management</p>
+          <h2 className="text-3xl font-black text-gray-900 tracking-tight">Organizer Control Center</h2>
+          <p className="text-sm text-gray-600 font-semibold">Real-time attendance metrics & guest management</p>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
           <button 
             onClick={exportCSV} 
-            className="flex-1 md:flex-none border border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-semibold px-5 py-3 rounded-xl transition-all shadow-sm active:scale-95 text-sm duration-150 flex items-center justify-center gap-1.5"
+            className="flex-1 md:flex-none border border-white/50 bg-white/40 hover:bg-white/60 text-gray-700 font-bold px-5 py-3.5 rounded-2xl transition-all shadow-md active:scale-95 text-xs duration-150 flex items-center justify-center gap-1.5 backdrop-blur-sm"
           >
             📥 Export CSV
           </button>
           <Link 
             to="/scan" 
-            className="flex-1 md:flex-none bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md active:scale-95 text-sm duration-150 flex items-center justify-center gap-1.5"
+            className="flex-1 md:flex-none bg-gradient-to-r from-pink-500 to-rose-600 hover:opacity-95 text-white font-bold px-6 py-3.5 rounded-2xl transition-all shadow-lg active:scale-95 text-xs duration-150 flex items-center justify-center gap-1.5"
           >
             📷 Open QR Scanner
           </Link>
@@ -131,7 +131,7 @@ export default function Dashboard() {
       {/* Select Event Row */}
       <div className="flex flex-col sm:flex-row gap-4">
         <select 
-          className="bg-white border border-gray-200 p-4 rounded-xl flex-1 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all"
+          className="bg-white/60 border border-white/40 p-4 rounded-2xl flex-1 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-pink-500 shadow-lg transition-all backdrop-blur-sm"
           value={selectedEventId || ''} 
           onChange={e => setSelectedEventId(e.target.value)}
         >
@@ -146,7 +146,7 @@ export default function Dashboard() {
                 .then(fetchEvents);
             }
           }} 
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-4 rounded-xl text-sm transition-all shadow-sm active:scale-95"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-4 rounded-2xl text-sm transition-all shadow-md active:scale-95"
         >
           ➕ Create New Event
         </button>
@@ -156,21 +156,21 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           
           {/* Main Area */}
-          <div className="lg:col-span-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex flex-col">
+          <div className="lg:col-span-2 glass-card rounded-3xl shadow-2xl border border-white/30 overflow-hidden flex flex-col">
             
             {/* Stats Sub-header banner */}
-            <div className="bg-gray-50/50 p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <h3 className="text-lg font-bold text-gray-800">
+            <div className="bg-white/30 p-6 border-b border-white/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <h3 className="text-lg font-black text-gray-800">
                 Registered Attendees ({registrations.length})
               </h3>
-              <div className="text-xs font-bold flex flex-wrap gap-2">
-                 <span className="bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1.5 rounded-full">
+              <div className="text-[10px] font-bold flex flex-wrap gap-2">
+                 <span className="bg-emerald-500/10 text-emerald-800 border border-emerald-500/20 px-3.5 py-2 rounded-full backdrop-blur-sm">
                    ✅ Checked In: {checkedInCount}
                  </span>
-                 <span className="bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1.5 rounded-full">
+                 <span className="bg-blue-500/10 text-blue-800 border border-blue-500/20 px-3.5 py-2 rounded-full backdrop-blur-sm">
                    🎟️ Registered: {registeredCount}
                  </span>
-                 <span className="bg-amber-50 text-amber-700 border border-amber-100 px-3 py-1.5 rounded-full">
+                 <span className="bg-pink-500/10 text-pink-800 border border-pink-500/20 px-3.5 py-2 rounded-full backdrop-blur-sm animate-pulse">
                    ⏳ Waitlist: {waitlistedCount}
                  </span>
               </div>
@@ -183,43 +183,43 @@ export default function Dashboard() {
                 placeholder="Search by name or email..." 
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="border border-gray-200 bg-gray-50/50 p-3.5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all placeholder:text-gray-400"
+                className="border border-white/40 bg-white/40 p-4 rounded-2xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:bg-white transition-all placeholder:text-gray-500"
               />
             </div>
 
             {/* Table wrapper */}
             {loadingRegs ? (
               <div className="py-20 flex justify-center items-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600"></div>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-gray-100 bg-gray-50/30 text-gray-500 text-xs uppercase tracking-wider">
-                      <th className="p-4 font-bold">Name</th>
-                      <th className="p-4 font-bold">Email</th>
-                      <th className="p-4 font-bold">Status</th>
-                      <th className="p-4 font-bold text-right">Actions</th>
+                    <tr className="border-b border-white/20 bg-white/10 text-gray-600 text-xs font-bold uppercase tracking-wider">
+                      <th className="p-4">Name</th>
+                      <th className="p-4">Email</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-white/15">
                     {filteredRegistrations.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="text-center py-12 text-sm text-gray-400 font-medium">
+                        <td colSpan={4} className="text-center py-12 text-sm text-gray-500 font-semibold">
                           No registrants found.
                         </td>
                       </tr>
                     ) : (
                       filteredRegistrations.map(reg => (
-                        <tr key={reg.id} className="hover:bg-gray-50/50 transition-colors text-sm text-gray-700">
-                          <td className="p-4 font-semibold text-gray-900">{reg.name}</td>
-                          <td className="p-4 text-gray-500">{reg.email}</td>
+                        <tr key={reg.id} className="hover:bg-white/20 transition-colors text-sm text-gray-700 font-medium">
+                          <td className="p-4 font-bold text-gray-900">{reg.name}</td>
+                          <td className="p-4 text-gray-600">{reg.email}</td>
                           <td className="p-4">
-                             <span className={`text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wider ${
-                                reg.status === 'checked_in' ? 'bg-emerald-50 text-emerald-700' :
-                                reg.status === 'registered' ? 'bg-blue-50 text-blue-700' :
-                                'bg-amber-50 text-amber-700'
+                             <span className={`text-[10px] px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider border ${
+                                reg.status === 'checked_in' ? 'bg-emerald-500/10 text-emerald-800 border-emerald-500/20' :
+                                reg.status === 'registered' ? 'bg-blue-500/10 text-blue-800 border-blue-500/20' :
+                                'bg-pink-500/10 text-pink-800 border-pink-500/20'
                              }`}>
                                {reg.status}
                              </span>
@@ -228,7 +228,7 @@ export default function Dashboard() {
                             {reg.status === 'registered' && (
                               <button 
                                 onClick={() => handleManualCheckIn(reg.id)} 
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-1.5 px-3 rounded-lg text-xs transition-all active:scale-95 shadow-sm inline-flex items-center gap-1"
+                                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-95 text-white font-bold py-2 px-4 rounded-xl text-xs transition-all active:scale-95 shadow-md"
                               >
                                 Check In
                               </button>
@@ -236,7 +236,7 @@ export default function Dashboard() {
                             {reg.status === 'checked_in' && (
                               <button 
                                 onClick={() => handleUndo(reg.id)} 
-                                className="bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold py-1.5 px-3 rounded-lg text-xs transition-all active:scale-95 border border-rose-150 inline-flex items-center gap-1"
+                                className="bg-gradient-to-r from-rose-500 to-red-600 hover:opacity-95 text-white font-bold py-2 px-4 rounded-xl text-xs transition-all active:scale-95 shadow-md"
                               >
                                 Undo Check-In
                               </button>
