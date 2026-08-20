@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
 import AiInsights from '../components/AiInsights';
+import { playBeep } from '../utils/sound';
 
 export default function Dashboard() {
   const [events, setEvents] = useState<any[]>([]);
@@ -61,14 +62,17 @@ export default function Dashboard() {
   const handleManualCheckIn = async (regId: number) => {
     try {
       await api.post('/checkin/manual', { registration_id: regId, station_id: 'dashboard' });
+      playBeep('success');
     } catch (err: any) {
       alert(err.response?.data?.error || 'Manual checkin failed');
+      playBeep('error');
     }
   };
 
   const handleUndo = async (regId: number) => {
     try {
       await api.post('/checkin/undo', { registration_id: regId, station_id: 'dashboard' });
+      playBeep('error');
     } catch (err: any) {
       alert(err.response?.data?.error || 'Undo failed');
     }
@@ -103,6 +107,19 @@ export default function Dashboard() {
   const checkedInCount = registrations.filter(r => r.status === 'checked_in').length;
   const registeredCount = registrations.filter(r => r.status === 'registered').length;
   const waitlistedCount = registrations.filter(r => r.status === 'waitlisted').length;
+
+  // Compute stats for current event capacity
+  const currentEvent = events.find(e => e.id.toString() === selectedEventId);
+  const totalCapacity = currentEvent ? currentEvent.capacity : 1;
+  const activeAttendeesCount = registrations.filter(r => r.status === 'registered' || r.status === 'checked_in').length;
+  const capacityFilledPercent = Math.min(100, Math.round((activeAttendeesCount / totalCapacity) * 100));
+  const attendanceRatePercent = activeAttendeesCount > 0 ? Math.min(100, Math.round((checkedInCount / activeAttendeesCount) * 100)) : 0;
+
+  // SVG parameters for radial gauge
+  const radius = 35;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffsetCapacity = circumference - (capacityFilledPercent / 100) * circumference;
+  const strokeDashoffsetAttendance = circumference - (attendanceRatePercent / 100) * circumference;
 
   return (
     <div className="flex flex-col gap-6 mt-6 transition-all duration-300">
@@ -158,10 +175,51 @@ export default function Dashboard() {
           {/* Main Area */}
           <div className="lg:col-span-2 glass-card rounded-3xl shadow-2xl border border-white/30 overflow-hidden flex flex-col">
             
-            {/* Stats Sub-header banner */}
-            <div className="bg-white/30 p-6 border-b border-white/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            {/* Real-time visual progress gauges */}
+            <div className="p-6 bg-white/40 border-b border-white/20 grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+              
+              {/* Capacity Gauge */}
+              <div className="flex items-center gap-4 bg-white/30 p-4 rounded-2xl border border-white/20">
+                <div className="relative h-20 w-20 flex-shrink-0">
+                  <svg className="h-full w-full transform -rotate-90">
+                    <circle cx="40" cy="40" r={radius} stroke="rgba(0,0,0,0.05)" strokeWidth="6" fill="transparent" />
+                    <circle cx="40" cy="40" r={radius} stroke="#e73c7e" strokeWidth="6" fill="transparent" 
+                      strokeDasharray={circumference} strokeDashoffset={strokeDashoffsetCapacity} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
+                  </svg>
+                  <span className="absolute inset-0 flex items-center justify-center text-sm font-extrabold text-gray-800">
+                    {capacityFilledPercent}%
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-sm font-extrabold text-gray-800">Capacity Filled</h4>
+                  <p className="text-xs text-gray-500 font-semibold">{activeAttendeesCount} of {totalCapacity} slots taken</p>
+                </div>
+              </div>
+
+              {/* Attendance Check-in rate Gauge */}
+              <div className="flex items-center gap-4 bg-white/30 p-4 rounded-2xl border border-white/20">
+                <div className="relative h-20 w-20 flex-shrink-0">
+                  <svg className="h-full w-full transform -rotate-90">
+                    <circle cx="40" cy="40" r={radius} stroke="rgba(0,0,0,0.05)" strokeWidth="6" fill="transparent" />
+                    <circle cx="40" cy="40" r={radius} stroke="#23a6d5" strokeWidth="6" fill="transparent" 
+                      strokeDasharray={circumference} strokeDashoffset={strokeDashoffsetAttendance} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
+                  </svg>
+                  <span className="absolute inset-0 flex items-center justify-center text-sm font-extrabold text-gray-800">
+                    {attendanceRatePercent}%
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-sm font-extrabold text-gray-800">Check-in Progress</h4>
+                  <p className="text-xs text-gray-500 font-semibold">{checkedInCount} of {activeAttendeesCount} checked in</p>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Stats Sub-header badges */}
+            <div className="bg-white/20 p-6 border-b border-white/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <h3 className="text-lg font-black text-gray-800">
-                Registered Attendees ({registrations.length})
+                Registrants List
               </h3>
               <div className="text-[10px] font-bold flex flex-wrap gap-2">
                  <span className="bg-emerald-500/10 text-emerald-800 border border-emerald-500/20 px-3.5 py-2 rounded-full backdrop-blur-sm">

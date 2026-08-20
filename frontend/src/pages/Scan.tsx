@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import api from '../api/client';
 import { Link } from 'react-router-dom';
+import { playBeep } from '../utils/sound';
 
 export default function Scan() {
   const [status, setStatus] = useState<{msg: string, type: 'success'|'error'|'info'}>({msg: 'Point camera at a guest\'s ticket QR code...', type: 'info'});
@@ -58,12 +59,15 @@ export default function Scan() {
       try {
         const res = await api.post('/checkin/scan', payload);
         setStatus({ msg: `✅ ${res.data.attendee} checked in successfully!`, type: 'success' });
+        playBeep('success');
       } catch (err: any) {
         setStatus({ msg: `❌ ${err.response?.data?.error || 'Check-in failed'}`, type: 'error' });
+        playBeep('error');
       }
     } else {
       setOfflineQueue(prev => [...prev, payload]);
       setStatus({ msg: `💾 Offline scan saved successfully to queue.`, type: 'info' });
+      playBeep('success');
     }
   };
 
