@@ -50,4 +50,21 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: Response): Promis
   }
 });
 
+// Get event registrations (Organizer only)
+router.get('/:id/registrations', authenticate, requireOrganizer, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const result = await pool.query(`
+      SELECT r.id, r.status, r.checked_in_at, u.name, u.email 
+      FROM registrations r
+      JOIN users u ON r.attendee_id = u.id
+      WHERE r.event_id = $1
+      ORDER BY r.created_at ASC
+    `, [req.params.id]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 export default router;
