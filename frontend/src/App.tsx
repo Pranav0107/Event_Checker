@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -16,8 +17,21 @@ const PrivateRoute = ({ children, requireRole }: { children: React.ReactNode, re
   return <>{children}</>;
 };
 
+const PageTransition = ({ children }: { children: React.ReactNode }) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.98, y: 10 }}
+    animate={{ opacity: 1, scale: 1, y: 0 }}
+    exit={{ opacity: 0, scale: 0.98, y: -10 }}
+    transition={{ duration: 0.3, ease: 'easeInOut' }}
+    className="w-full h-full flex flex-col justify-center"
+  >
+    {children}
+  </motion.div>
+);
+
 const AppRoutes = () => {
   const { user, logout } = useAuth();
+  const location = useLocation();
   return (
     <div className="min-h-screen text-gray-900 flex flex-col pb-12">
       {/* Navigation Bar */}
@@ -47,22 +61,24 @@ const AppRoutes = () => {
       </nav>
 
       {/* Main Content Area */}
-      <main className="p-4 max-w-5xl w-full mx-auto flex-1 flex flex-col justify-center">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/verify/:token" element={<VerifyEmail />} />
-          <Route path="/dashboard" element={
-            <PrivateRoute requireRole="organizer"><Dashboard /></PrivateRoute>
-          } />
-          <Route path="/scan" element={
-            <PrivateRoute requireRole="organizer"><Scan /></PrivateRoute>
-          } />
-          <Route path="/events/:id" element={
-            <PrivateRoute><EventDetails /></PrivateRoute>
-          } />
-          <Route path="/" element={<Navigate to={user?.role === 'organizer' ? '/dashboard' : '/login'} />} />
-        </Routes>
+      <main className="p-4 max-w-5xl w-full mx-auto flex-1 flex flex-col justify-center relative overflow-hidden">
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+            <Route path="/register" element={<PageTransition><Register /></PageTransition>} />
+            <Route path="/verify/:token" element={<PageTransition><VerifyEmail /></PageTransition>} />
+            <Route path="/dashboard" element={
+              <PrivateRoute requireRole="organizer"><PageTransition><Dashboard /></PageTransition></PrivateRoute>
+            } />
+            <Route path="/scan" element={
+              <PrivateRoute requireRole="organizer"><PageTransition><Scan /></PageTransition></PrivateRoute>
+            } />
+            <Route path="/events/:id" element={
+              <PrivateRoute><PageTransition><EventDetails /></PageTransition></PrivateRoute>
+            } />
+            <Route path="/" element={<Navigate to={user?.role === 'organizer' ? '/dashboard' : '/login'} />} />
+          </Routes>
+        </AnimatePresence>
       </main>
     </div>
   );

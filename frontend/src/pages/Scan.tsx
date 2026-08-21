@@ -3,6 +3,7 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 import api from '../api/client';
 import { Link, useNavigate } from 'react-router-dom';
 import { playBeep } from '../utils/sound';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Scan() {
   const [status, setStatus] = useState<{msg: string, type: 'success'|'error'|'info'}>({msg: 'Point camera at a guest\'s ticket QR code...', type: 'info'});
@@ -10,6 +11,8 @@ export default function Scan() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
   const [syncing, setSyncing] = useState(false);
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
+  const [successName, setSuccessName] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,8 +65,10 @@ export default function Scan() {
       try {
         const res = await api.post('/checkin/scan', payload);
         setStatus({ msg: `✅ Checked in confirmed! (${res.data.attendee})`, type: 'success' });
+        setSuccessName(res.data.attendee);
+        setShowSuccessOverlay(true);
         playBeep('success');
-        setTimeout(() => navigate('/dashboard'), 1500);
+        setTimeout(() => navigate('/dashboard'), 2000);
       } catch (err: any) {
         setStatus({ msg: `❌ ${err.response?.data?.error || 'Check-in failed'}`, type: 'error' });
         playBeep('error');
@@ -98,7 +103,44 @@ export default function Scan() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto flex flex-col gap-6 mt-6 animate-float">
+    <div className="max-w-md w-full mx-auto flex flex-col gap-6 mt-6 animate-float relative">
+      <AnimatePresence>
+        {showSuccessOverlay && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            transition={{ type: 'spring', bounce: 0.5 }}
+            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/90 backdrop-blur-xl rounded-3xl border-2 border-emerald-400 shadow-2xl"
+          >
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1, rotate: 360 }}
+              transition={{ delay: 0.1, type: 'spring' }}
+              className="w-24 h-24 bg-gradient-to-tr from-emerald-400 to-teal-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/40 mb-4"
+            >
+              <span className="text-5xl text-white">✓</span>
+            </motion.div>
+            <motion.h2 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-2xl font-black text-emerald-800 tracking-tight"
+            >
+              Checked In!
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-sm font-bold text-emerald-600 mt-1"
+            >
+              {successName}
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex justify-between items-center glass-card p-5 rounded-3xl shadow-2xl border border-white/30">
         <h2 className="text-xl font-black text-gray-800 flex items-center gap-2">
           📷 Scan QR Code
