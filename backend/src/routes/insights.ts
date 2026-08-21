@@ -1,7 +1,7 @@
 import express, { Response } from 'express';
 import pool from '../db';
 import { authenticate, requireOrganizer, AuthRequest } from '../middleware/auth';
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenAI } from '@google/genai';
 
 const router = express.Router();
 
@@ -63,28 +63,26 @@ Spots Left: ${capacity - (parseInt(stats.checked_in_count) + parseInt(stats.regi
 Peak check-in information: ${peakTimeStr}
     `;
 
-    // 2. Call Anthropic API
+    // 2. Call Gemini API
     try {
-      const anthropic = new Anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY || 'dummy_key', // graceful fallback below
-      });
-
-      if (!process.env.ANTHROPIC_API_KEY) {
-        throw new Error('Anthropic API key is not configured');
+      if (!process.env.GEMINI_API_KEY) {
+        throw new Error('Gemini API key is not configured');
       }
+      
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const prompt = `System: You are an AI assistant for an event organizer. Use ONLY the provided context to answer the organizer's question in plain English. Do not invent numbers. Be concise.
 
-      const response = await anthropic.messages.create({
-        model: 'claude-3-haiku-20240307',
-        max_tokens: 300,
-        system: "You are an AI assistant for an event organizer. Use ONLY the provided context to answer the organizer's question in plain English. Do not invent numbers. Be concise.",
-        messages: [
-          { role: 'user', content: `Here is the current data for the event:\n${contextStr}\n\nQuestion: ${question}` }
-        ]
+Here is the current data for the event:
+${contextStr}
+
+Question: ${question}`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt
       });
 
-      // Anthropic API response format might be slightly different depending on sdk version,
-      // but usually it's in response.content[0].text
-      const answer = (response.content[0] as any).text || 'Could not parse AI response.';
+      const answer = response.text || 'Could not parse AI response.';
 
       res.json({ answer, raw_data: contextStr });
     } catch (aiError) {
