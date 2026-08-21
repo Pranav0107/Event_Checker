@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import api from '../api/client';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { playBeep } from '../utils/sound';
 
 export default function Scan() {
@@ -10,6 +10,7 @@ export default function Scan() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
   const [syncing, setSyncing] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const saved = localStorage.getItem('offlineQueue');
@@ -49,7 +50,6 @@ export default function Scan() {
   const onScanSuccess = async (decodedText: string) => {
     if (scannerRef.current) {
        scannerRef.current.pause();
-       setTimeout(() => scannerRef.current?.resume(), 2500);
     }
 
     const payload = {
@@ -61,16 +61,19 @@ export default function Scan() {
     if (navigator.onLine) {
       try {
         const res = await api.post('/checkin/scan', payload);
-        setStatus({ msg: `✅ ${res.data.attendee} checked in successfully!`, type: 'success' });
+        setStatus({ msg: `✅ Checked in confirmed! (${res.data.attendee})`, type: 'success' });
         playBeep('success');
+        setTimeout(() => navigate('/dashboard'), 1500);
       } catch (err: any) {
         setStatus({ msg: `❌ ${err.response?.data?.error || 'Check-in failed'}`, type: 'error' });
         playBeep('error');
+        setTimeout(() => scannerRef.current?.resume(), 2000);
       }
     } else {
       setOfflineQueue(prev => [...prev, payload]);
       setStatus({ msg: `💾 Offline scan saved successfully to queue.`, type: 'info' });
       playBeep('success');
+      setTimeout(() => navigate('/dashboard'), 1500);
     }
   };
 
