@@ -9,7 +9,6 @@ import Scan from './pages/Scan';
 import EventDetails from './pages/EventDetails';
 import EventList from './pages/EventList';
 import VerifyEmail from './pages/VerifyEmail';
-import VerifyEmail from './pages/VerifyEmail';
 
 const PrivateRoute = ({ children, requireRole }: { children: React.ReactNode, requireRole?: string }) => {
   const { user, loading } = useAuth();
