@@ -37,7 +37,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
     const verificationToken = uuidv4();
     
     const result = await pool.query(
-      'INSERT INTO users (name, email, password_hash, role, is_verified, verification_token) VALUES ($1, $2, $3, $4, FALSE, $5) RETURNING id, name, email, role',
+      'INSERT INTO users (name, email, password_hash, role, is_verified, verification_token) VALUES ($1, $2, $3, $4, TRUE, $5) RETURNING id, name, email, role',
       [name, email, passwordHash, role, verificationToken]
     );
     
@@ -59,7 +59,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
       }).catch(console.error);
     }
 
-    res.status(201).json({ message: 'User registered. Please check your email to verify your account.' });
+    res.status(201).json({ message: 'User registered successfully! You can now log in.' });
   } catch (error: any) {
     if (error.code === '23505') {
       res.status(409).json({ error: 'Email already exists' });

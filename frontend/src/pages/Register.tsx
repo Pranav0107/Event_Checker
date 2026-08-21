@@ -18,7 +18,7 @@ export default function Register() {
     setSuccess('');
     try {
       const res = await api.post('/auth/register', { name, email, password, role });
-      setSuccess(res.data.message || 'Successfully registered! Please check your email to verify your account.');
+      setSuccess(res.data.message || 'Successfully registered! You can now log in.');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Registration failed. Please try again.');
     } finally {
