@@ -7,6 +7,8 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Scan from './pages/Scan';
 import EventDetails from './pages/EventDetails';
+import EventList from './pages/EventList';
+import VerifyEmail from './pages/VerifyEmail';
 import VerifyEmail from './pages/VerifyEmail';
 
 const PrivateRoute = ({ children, requireRole }: { children: React.ReactNode, requireRole?: string }) => {
@@ -73,10 +75,13 @@ const AppRoutes = () => {
             <Route path="/scan" element={
               <PrivateRoute requireRole="organizer"><PageTransition><Scan /></PageTransition></PrivateRoute>
             } />
+            <Route path="/events" element={
+              <PrivateRoute><PageTransition><EventList /></PageTransition></PrivateRoute>
+            } />
             <Route path="/events/:id" element={
               <PrivateRoute><PageTransition><EventDetails /></PageTransition></PrivateRoute>
             } />
-            <Route path="/" element={<Navigate to={user?.role === 'organizer' ? '/dashboard' : '/login'} />} />
+            <Route path="/" element={<Navigate to={user?.role === 'organizer' ? '/dashboard' : '/events'} />} />
           </Routes>
         </AnimatePresence>
       </main>

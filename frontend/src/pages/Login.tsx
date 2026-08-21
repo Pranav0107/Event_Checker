@@ -21,7 +21,7 @@ export default function Login() {
       if (res.data.user.role === 'organizer') {
         navigate('/dashboard');
       } else {
-        navigate('/events/1');
+        navigate('/events');
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed. Please check your credentials.');
