@@ -9,14 +9,15 @@ import EventDetails from './pages/EventDetails';
 import VerifyEmail from './pages/VerifyEmail';
 
 const PrivateRoute = ({ children, requireRole }: { children: React.ReactNode, requireRole?: string }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div></div>;
   if (!user) return <Navigate to="/login" />;
   if (requireRole && user.role !== requireRole) return <Navigate to="/" />;
   return <>{children}</>;
 };
 
 const AppRoutes = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   return (
     <div className="min-h-screen text-gray-900 flex flex-col pb-12">
       {/* Navigation Bar */}
@@ -36,11 +37,7 @@ const AppRoutes = () => {
               👤 {user.name} ({user.role})
             </span>
             <button 
-              onClick={() => {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.location.reload();
-              }} 
+              onClick={() => logout()} 
               className="text-xs font-bold text-white bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 px-4 py-2 rounded-xl transition-all active:scale-95 shadow-md shadow-red-500/10"
             >
               Logout
