@@ -1,7 +1,6 @@
 import express, { Response } from 'express';
 import pool from '../db';
 import { authenticate, requireOrganizer, AuthRequest } from '../middleware/auth';
-import { GoogleGenAI } from '@google/genai';
 
 const router = express.Router();
 
@@ -69,6 +68,7 @@ Peak check-in information: ${peakTimeStr}
         throw new Error('Gemini API key is not configured');
       }
       
+      const { GoogleGenAI } = await import('@google/genai');
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const prompt = `System: You are an AI assistant for an event organizer. Use ONLY the provided context to answer the organizer's question in plain English. Do not invent numbers. Be concise.
 
